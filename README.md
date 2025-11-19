@@ -1,73 +1,96 @@
-# React + TypeScript + Vite
+# Markdown to PDF Converter
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern, client-side application built with React and TypeScript that converts Markdown text into high-quality PDF documents. This tool runs entirely in your browser, ensuring your data stays private and secure.
 
-Currently, two official plugins are available:
+![Markdown to PDF Preview](./public/vite.svg)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 Features
 
-## React Compiler
+- **Real-time Preview**: See your changes instantly as you type.
+- **Split-Screen Interface**: Code editor on the left, live preview on the right.
+- **Professional PDF Export**: Generates clean, A4-sized PDF documents with proper margins and styling.
+- **Syntax Highlighting**: Uses Monaco Editor (VS Code's editor) for a premium writing experience.
+- **Dark Mode**: Fully supported dark theme for comfortable writing in low light.
+- **Local Persistence**: Your work is automatically saved to your browser's local storage, so you never lose data.
+- **Markdown Support**:
+  - GitHub Flavored Markdown (GFM)
+  - Tables
+  - Code blocks with syntax highlighting
+  - Lists, links, and images
+  - Typography styling
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🛠️ Tech Stack
 
-## Expanding the ESLint configuration
+- **Framework**: [React](https://react.dev/) (via [Vite](https://vitejs.dev/))
+- **Language**: [TypeScript](https://www.typescriptlang.org/)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/) + [@tailwindcss/typography](https://github.com/tailwindlabs/tailwindcss-typography)
+- **Editor**: [Monaco Editor](https://microsoft.github.io/monaco-editor/)
+- **Markdown Engine**: [react-markdown](https://github.com/remarkjs/react-markdown) + [remark-gfm](https://github.com/remarkjs/remark-gfm)
+- **PDF Generation**: [react-to-print](https://github.com/gregnb/react-to-print)
+- **Icons**: [Lucide React](https://lucide.dev/)
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 📦 Installation
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+1.  **Clone the repository**
+    ```bash
+    git clone <repository-url>
+    cd markdown-to-pdf
+    ```
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+2.  **Install dependencies**
+    ```bash
+    npm install
+    ```
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+3.  **Start the development server**
+    ```bash
+    npm run dev
+    ```
+
+4.  **Build for production**
+    ```bash
+    npm run build
+    ```
+
+## 📂 Project Structure
+
+```
+markdown-to-pdf/
+├── src/
+│   ├── components/
+│   │   ├── Editor.tsx      # Monaco Editor wrapper
+│   │   ├── Header.tsx      # Top navigation and actions
+│   │   ├── Preview.tsx     # Markdown rendering and print layout
+│   │   └── Toolbar.tsx     # Markdown insertion tools
+│   ├── hooks/
+│   │   └── useLocalStorage.ts # Custom hook for persistence
+│   ├── App.tsx             # Main application layout and logic
+│   ├── index.css           # Global styles and Tailwind directives
+│   └── main.tsx            # Entry point
+├── public/                 # Static assets
+├── index.html              # HTML template
+├── tailwind.config.js      # Tailwind configuration
+└── vite.config.ts          # Vite configuration
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🎨 Customization
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Themes
+The application uses Tailwind CSS for styling. You can customize the color palette and typography in `tailwind.config.js`.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+### PDF Styling
+PDF styles are defined in `src/index.css` under the `@media print` query. You can adjust margins, page sizes, and hide specific elements during printing.
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1.  Fork the project
+2.  Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3.  Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4.  Push to the branch (`git push origin feature/AmazingFeature`)
+5.  Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
