@@ -1,5 +1,5 @@
 import { type FC } from 'react';
-import { Download, Moon, Sun, RotateCcw, FileText } from 'lucide-react';
+import { Download, Moon, Sun, RotateCcw, FileText, Github } from 'lucide-react';
 
 interface HeaderProps {
   title: string;
@@ -17,7 +17,10 @@ const Header: FC<HeaderProps> = ({ title, setTitle, onReset, onExport, theme, to
         <div className="p-2 bg-blue-600 rounded-lg">
             <FileText className="w-5 h-5 text-white" />
         </div>
-        <h1 className="text-lg font-bold text-gray-800 dark:text-white hidden sm:block">Markdown2PDF</h1>
+        <div className="hidden sm:block">
+            <h1 className="text-lg font-bold text-gray-800 dark:text-white leading-none">Markdown2PDF</h1>
+            <p className="text-xs text-gray-500 dark:text-gray-400">by Ashish</p>
+        </div>
       </div>
 
       <div className="flex-1 max-w-xl mx-4">
@@ -31,6 +34,18 @@ const Header: FC<HeaderProps> = ({ title, setTitle, onReset, onExport, theme, to
       </div>
 
       <div className="flex items-center space-x-2">
+        <a
+          href="https://github.com/Ashish/markdown-to-pdf"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="p-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors"
+          title="View on GitHub"
+        >
+          <Github className="w-5 h-5" />
+        </a>
+
+        <div className="w-px h-6 bg-gray-200 dark:bg-gray-700 mx-2" />
+
         <button
           onClick={onReset}
           className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 dark:text-gray-400 dark:hover:bg-red-900/20 dark:hover:text-red-400 rounded-lg transition-colors"
