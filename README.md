@@ -95,11 +95,11 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 **Ashish**
 
-- GitHub: [@Ashish](https://github.com/Ashish)
+- GitHub: [@Akm592](https://github.com/Akm592)
 
 ## 🔗 Repository
 
-- **GitHub Repo**: [https://github.com/Ashish/markdown-to-pdf](https://github.com/Ashish/markdown-to-pdf)
+- **GitHub Repo**: [https://github.com/Akm592/markdown-to-pdf](https://github.com/Akm592/markdown-to-pdf)
 
 ## �📄 License
 

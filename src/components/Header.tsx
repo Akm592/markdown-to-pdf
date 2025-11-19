@@ -35,7 +35,7 @@ const Header: FC<HeaderProps> = ({ title, setTitle, onReset, onExport, theme, to
 
       <div className="flex items-center space-x-2">
         <a
-          href="https://github.com/Ashish/markdown-to-pdf"
+          href="https://github.com/Akm592/markdown-to-pdf"
           target="_blank"
           rel="noopener noreferrer"
           className="p-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors"
