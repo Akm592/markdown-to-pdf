@@ -2,12 +2,264 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ========================================
+   CSS Custom Properties (Design Tokens)
+   ======================================== */
+:root {
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Premium gradient colors */
+  --gradient-start: #667eea;
+  --gradient-end: #764ba2;
+
+  /* Paper shadow */
+  --paper-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
+/* ========================================
+   Base Styles
+   ======================================== */
 @layer base {
+  html {
+    font-family: var(--font-sans);
+  }
+
   body {
     @apply bg-gray-100 text-gray-900 dark:bg-gray-900 dark:text-gray-100;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    @apply w-2 h-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-gray-100 dark:bg-gray-800;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 dark:bg-gray-600 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-400 dark:bg-gray-500;
   }
 }
 
+/* ========================================
+   Component Utilities
+   ======================================== */
+@layer components {
+
+  /* Glassmorphism effect */
+  .glass {
+    @apply bg-white/80 dark:bg-gray-800/80 backdrop-blur-md;
+  }
+
+  /* Premium button */
+  .btn-primary {
+    @apply flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg font-medium transition-all shadow-md hover:shadow-lg;
+  }
+
+  /* Paper effect for preview */
+  .paper {
+    box-shadow: var(--paper-shadow);
+  }
+}
+
+/* ========================================
+   Syntax Highlighting (Highlight.js)
+   
+   IMPORTANT: These styles ensure code blocks
+   have proper light backgrounds for readability
+   and print output.
+   ======================================== */
+.hljs {
+  @apply bg-white text-gray-800;
+}
+
+.dark .hljs {
+  @apply bg-gray-800 text-gray-200;
+}
+
+/* Print: Always use light theme */
+@media print {
+  .hljs {
+    background: #ffffff !important;
+    color: #1f2937 !important;
+  }
+}
+
+/* Syntax highlighting colors - optimized for readability */
+.hljs-comment,
+.hljs-quote {
+  @apply text-gray-500 italic;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-addition {
+  @apply text-purple-600 dark:text-purple-400;
+}
+
+.hljs-string,
+.hljs-meta .hljs-string,
+.hljs-regexp,
+.hljs-attribute {
+  @apply text-green-600 dark:text-green-400;
+}
+
+.hljs-number,
+.hljs-literal,
+.hljs-type,
+.hljs-params {
+  @apply text-orange-600 dark:text-orange-400;
+}
+
+.hljs-built_in,
+.hljs-symbol {
+  @apply text-cyan-600 dark:text-cyan-400;
+}
+
+.hljs-function,
+.hljs-class .hljs-title,
+.hljs-title.function_ {
+  @apply text-blue-600 dark:text-blue-400 font-semibold;
+}
+
+.hljs-variable,
+.hljs-template-variable {
+  @apply text-red-600 dark:text-red-400;
+}
+
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class {
+  @apply text-red-600 dark:text-red-400;
+}
+
+/* Print syntax colors - always visible */
+@media print {
+
+  .hljs-comment,
+  .hljs-quote {
+    color: #6b7280 !important;
+  }
+
+  .hljs-keyword,
+  .hljs-selector-tag {
+    color: #7c3aed !important;
+  }
+
+  .hljs-string,
+  .hljs-attribute {
+    color: #059669 !important;
+  }
+
+  .hljs-number,
+  .hljs-literal {
+    color: #ea580c !important;
+  }
+
+  .hljs-function,
+  .hljs-title.function_ {
+    color: #2563eb !important;
+  }
+}
+
+/* ========================================
+   Typography Overrides for Preview
+   
+   Ensures tables and other elements render
+   with proper backgrounds in both themes.
+   ======================================== */
+.prose table {
+  @apply w-full border-collapse overflow-hidden rounded-lg;
+}
+
+.prose thead {
+  background-color: #f8fafc !important;
+}
+
+.prose thead th {
+  color: #475569 !important;
+  border-bottom: 2px solid #e2e8f0 !important;
+  @apply px-4 py-3 text-left font-semibold;
+}
+
+.prose tbody tr {
+  background-color: #ffffff !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+}
+
+.prose tbody tr:last-child {
+  @apply border-b-0;
+}
+
+.prose tbody td {
+  color: #475569 !important;
+  @apply px-4 py-3;
+}
+
+.prose tbody tr:hover {
+  background-color: #f8fafc !important;
+}
+
+/* Print table styles - always light */
+@media print {
+  .prose table {
+    border: 1px solid #e5e7eb !important;
+  }
+
+  .prose thead {
+    background: #f3f4f6 !important;
+  }
+
+  .prose thead th {
+    color: #374151 !important;
+    border-bottom: 2px solid #d1d5db !important;
+  }
+
+  .prose tbody tr {
+    background: #ffffff !important;
+    border-bottom: 1px solid #e5e7eb !important;
+  }
+
+  .prose tbody td {
+    color: #4b5563 !important;
+  }
+}
+
+/* ========================================
+   Mermaid Diagram Fixes
+   
+   Ensures diagrams always have light 
+   backgrounds for proper rendering.
+   ======================================== */
+.mermaid {
+  @apply bg-white rounded-lg p-4 my-4 border border-gray-200 dark:border-gray-600;
+}
+
+.mermaid svg {
+  @apply mx-auto;
+}
+
+/* Print mermaid */
+@media print {
+  .mermaid {
+    background: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+    break-inside: avoid;
+  }
+}
+
+/* ========================================
+   Print Styles
+   ======================================== */
 @media print {
   @page {
     size: A4;
@@ -15,7 +267,68 @@
   }
 
   body {
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
   }
+
+  /* Force light mode for print */
+  .dark {
+    --tw-bg-opacity: 1;
+    background-color: white !important;
+    color: #1f2937 !important;
+  }
+
+  /* Hide non-printable elements */
+  .print\\:hidden {
+    display: none !important;
+  }
+
+  /* Page break utilities */
+  .break-before-page {
+    break-before: page;
+  }
+
+  .break-after-page {
+    break-after: page;
+  }
+
+  .break-inside-avoid {
+    break-inside: avoid;
+  }
+}
+
+/* ========================================
+   Animations
+   ======================================== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+@keyframes pulse-subtle {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 2s ease-in-out infinite;
 }
