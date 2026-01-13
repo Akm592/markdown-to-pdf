@@ -33,6 +33,12 @@ const MarkdownEditor: FC<EditorProps> = ({ value, onChange, theme = 'light', onE
         value={value}
         onChange={onChange}
         theme={theme === 'dark' ? 'vs-dark' : 'light'}
+        loading={
+            <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400 gap-2">
+                <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                <span className="text-sm font-medium">Loading Editor...</span>
+            </div>
+        }
         options={{
           minimap: { enabled: false },
           fontSize: 14,
