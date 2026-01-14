@@ -16,7 +16,7 @@ const CodeBlock: FC<CodeBlockProps> = ({ className, children, inline }) => {
   const code = String(children).replace(/\n$/, '');
 
   // Inline code - always light background for readability
-  if (inline || !match) {
+  if (inline) {
     return (
       <code className="px-1.5 py-0.5 text-sm font-mono bg-slate-100 text-pink-600 rounded border border-slate-200">
         {children}
