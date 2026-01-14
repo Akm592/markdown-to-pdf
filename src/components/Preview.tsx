@@ -1,19 +1,52 @@
 import { forwardRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+import remarkGemoji from 'remark-gemoji';
+import remarkFrontmatter from 'remark-frontmatter';
+import remarkDirective from 'remark-directive';
+import { visit } from 'unist-util-visit';
 import Mermaid from './Mermaid';
 import CodeBlock from './CodeBlock';
+import Admonition from './Admonition';
+import 'katex/dist/katex.min.css';
 
 interface PreviewProps {
   content: string;
   theme?: 'light' | 'dark';
 }
 
+// Custom plugin to transform directive nodes into admonitions
+function remarkAdmonitions() {
+  return (tree: any) => {
+    visit(tree, (node) => {
+      if (
+        node.type === 'containerDirective' ||
+        node.type === 'leafDirective' ||
+        node.type === 'textDirective'
+      ) {
+        const validTypes = ['note', 'tip', 'info', 'warning', 'danger'];
+        if (validTypes.includes(node.name)) {
+          const data = node.data || (node.data = {});
+          const tagName = 'admonition';
+          
+          data.hName = tagName;
+          data.hProperties = {
+            type: node.name,
+            title: node.attributes?.title || '',
+          };
+        }
+      }
+    });
+  };
+}
+
 const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ content, theme = 'light' }, ref) => {
   return (
     // ALWAYS light background for preview - matches PDF export
     <div className="h-full w-full overflow-auto p-4 sm:p-8 flex justify-center print:p-0 print:bg-white print:block" style={{ backgroundColor: '#f1f5f9' }}>
-      {/* Paper container - overflow-x-hidden prevents horizontal overflow, vertical content is visible */}
+      {/* Paper container - overflow-x-hidden prevents horizontal overflow */}
       <div 
         ref={ref}
         className="min-h-[29.7cm] w-full max-w-[21cm] bg-white p-6 sm:p-[2cm] shadow-lg rounded-sm overflow-x-hidden print:shadow-none print:w-full print:max-w-none print:min-h-0 print:p-0 print:m-0 print:rounded-none print:overflow-visible mx-auto"
@@ -33,8 +66,25 @@ const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ content, theme = 'li
           prose-pre:p-0 prose-pre:bg-transparent prose-pre:overflow-visible
         ">
           <ReactMarkdown 
-            remarkPlugins={[remarkGfm]}
+            remarkPlugins={[
+              remarkGfm,
+              remarkMath,
+              remarkGemoji,
+              remarkFrontmatter,
+              remarkDirective,
+              remarkAdmonitions,
+            ]}
+            rehypePlugins={[rehypeKatex]}
             components={{
+              // Admonition component for callouts
+              // @ts-ignore - custom element
+              admonition({ type, title, children }) {
+                return (
+                  <Admonition type={type || 'note'} title={title}>
+                    {children}
+                  </Admonition>
+                );
+              },
               // Code blocks and inline code
               code({ node, className, children, ...props }) {
                 const match = /language-(\w+)/.exec(className || '');
@@ -45,21 +95,20 @@ const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ content, theme = 'li
                   return <Mermaid chart={String(children).replace(/\n$/, '')} theme={theme} />;
                 }
 
-                // Check if inline code (no language specified and short content)
+                // Check if inline code
                 const isInline = !match && !String(children).includes('\n');
 
-                // Use CodeBlock for all code
                 return (
                   <CodeBlock className={className} inline={isInline} {...props}>
                     {children}
                   </CodeBlock>
                 );
               },
-              // Pre tag - remove default styling since CodeBlock handles it
+              // Pre tag - remove default styling
               pre({ children }) {
                 return <div className="not-prose">{children}</div>;
               },
-              // Enhanced table rendering - ALWAYS light backgrounds
+              // Enhanced table rendering
               table({ children }) {
                 return (
                   <div className="my-6 overflow-x-auto rounded-lg border border-slate-200 bg-white">
@@ -68,11 +117,7 @@ const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ content, theme = 'li
                 );
               },
               thead({ children }) {
-                return (
-                  <thead className="bg-slate-50">
-                    {children}
-                  </thead>
-                );
+                return <thead className="bg-slate-50">{children}</thead>;
               },
               th({ children }) {
                 return (
@@ -106,11 +151,11 @@ const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ content, theme = 'li
                   </blockquote>
                 );
               },
-              // Horizontal rule with styling
+              // Horizontal rule
               hr() {
                 return <hr className="my-8 border-t-2 border-slate-200" />;
               },
-              // Images with proper styling - constrain width
+              // Images
               img({ src, alt }) {
                 return (
                   <img 
@@ -121,7 +166,7 @@ const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ content, theme = 'li
                   />
                 );
               },
-              // Checkbox styling for task lists
+              // Checkbox for task lists
               input({ type, checked, ...props }) {
                 if (type === 'checkbox') {
                   return (

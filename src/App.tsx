@@ -11,20 +11,63 @@ import useLocalStorage from './hooks/useLocalStorage';
 import Layout from './components/Layout';
 import { ErrorFallback } from './components/ErrorBoundary';
 
-const DEFAULT_MARKDOWN = `# Welcome to Markdown2PDF ✨
+const DEFAULT_MARKDOWN = `# Welcome to Markdown2PDF :rocket:
 
-A beautiful, production-ready markdown editor with live preview and PDF export.
+A beautiful, production-ready markdown editor with **universal markdown support**.
 
 ---
 
 ## Features
 
-- **Live Preview**: See your changes instantly
-- **Syntax Highlighting**: Beautiful code blocks with copy-to-clipboard
-- **Mermaid Diagrams**: Flowcharts, sequences, and more
-- **Dark Mode**: Easy on the eyes
-- **PDF Export**: High-quality output with proper styling
-- **Local Storage**: Your work is automatically saved
+- :white_check_mark: **Live Preview**: See your changes instantly
+- :white_check_mark: **Syntax Highlighting**: Beautiful code blocks with copy-to-clipboard
+- :white_check_mark: **Mermaid Diagrams**: Flowcharts, sequences, and more
+- :white_check_mark: **Math Equations**: LaTeX-style math with KaTeX
+- :white_check_mark: **Admonitions**: Note, tip, warning, and danger callouts
+- :white_check_mark: **Emoji Support**: Use :emoji: shortcodes
+- :white_check_mark: **PDF Export**: High-quality output with proper styling
+
+---
+
+## Math Equations :books:
+
+Inline math: $E = mc^2$ and $\\sum_{i=1}^{n} i = \\frac{n(n+1)}{2}$
+
+Block math:
+
+$$
+\\int_{-\\infty}^{\\infty} e^{-x^2} dx = \\sqrt{\\pi}
+$$
+
+The quadratic formula:
+
+$$
+x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}
+$$
+
+---
+
+## Admonitions / Callouts
+
+:::note
+This is a **note** callout. Use it for general information.
+:::
+
+:::tip
+This is a **tip** callout. Use it for helpful suggestions.
+:::
+
+:::info
+This is an **info** callout. Use it for informational highlights.
+:::
+
+:::warning
+This is a **warning** callout. Use it for important cautions.
+:::
+
+:::danger
+This is a **danger** callout. Use it for critical warnings.
+:::
 
 ---
 
@@ -64,11 +107,10 @@ for num in fibonacci(100):
 
 | Feature | Status | Priority |
 | --- | --- | --- |
-| Live Preview | ✅ Completed | High |
-| PDF Export | ✅ Completed | High |
-| Syntax Highlighting | ✅ Completed | Medium |
-| Mermaid Diagrams | ✅ Completed | Medium |
-| Dark Mode | ✅ Completed | Low |
+| Live Preview | :white_check_mark: Completed | High |
+| PDF Export | :white_check_mark: Completed | High |
+| Math Support | :white_check_mark: Completed | Medium |
+| Admonitions | :white_check_mark: Completed | Medium |
 
 ---
 
@@ -89,7 +131,7 @@ graph TD
 
 ## Blockquotes
 
-> 💡 **Pro Tip**: Use the toolbar above to quickly insert markdown elements like headings, lists, tables, and even Mermaid diagrams!
+> :bulb: **Pro Tip**: Use the toolbar above to quickly insert markdown elements like headings, lists, tables, and even Mermaid diagrams!
 
 ---
 
@@ -98,8 +140,9 @@ graph TD
 - [x] Create markdown editor
 - [x] Add live preview
 - [x] Implement PDF export
-- [x] Add syntax highlighting
-- [ ] Share with the world
+- [x] Add math equations support
+- [x] Add admonitions/callouts
+- [ ] Share with the world :earth_americas:
 
 ---
 
@@ -107,10 +150,13 @@ graph TD
 
 You can use **bold**, *italic*, ~~strikethrough~~, and \`inline code\` within your text. You can also add [links](https://github.com) to external resources.
 
+Emojis: :smile: :heart: :rocket: :fire: :star: :thumbsup:
+
 ---
 
-*Made with ❤️ by Ashish*
+*Made with :heart: by Ashish*
 `;
+
 
 function App() {
   const [markdown, setMarkdown] = useLocalStorage<string>('md_content', DEFAULT_MARKDOWN);
