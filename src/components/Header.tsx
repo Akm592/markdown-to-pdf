@@ -1,5 +1,5 @@
 import { type FC } from 'react';
-import { Download, Moon, Sun, RotateCcw, FileText, Github, Keyboard } from 'lucide-react';
+import { Download, Moon, Sun, RotateCcw, FileText, Github } from 'lucide-react';
 
 interface HeaderProps {
   title: string;
