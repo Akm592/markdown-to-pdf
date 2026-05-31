@@ -296,6 +296,42 @@
   .break-inside-avoid {
     break-inside: avoid;
   }
+
+  /* Prevent scrolling containers from clipping content */
+  .overflow-x-auto,
+  .overflow-auto,
+  .overflow-hidden,
+  pre {
+    overflow: visible !important;
+    overflow-x: visible !important;
+    white-space: pre-wrap !important;
+    word-break: break-word !important;
+  }
+
+  /* Prevent page breaks inside critical elements */
+  table,
+  tr,
+  td,
+  th,
+  pre,
+  code,
+  blockquote,
+  .mermaid,
+  img,
+  .group /* Code block wrapper */ {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* Ensure tables use full width and wrap text */
+  .prose table {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .prose td, .prose th {
+    word-break: break-word !important;
+  }
 }
 
 /* ========================================
