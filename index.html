@@ -6,14 +6,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
     <!-- SEO Meta Tags -->
-    <meta name="description" content="Markdown2PDF - A beautiful, production-ready markdown editor with live preview and PDF export. Features syntax highlighting, Mermaid diagrams, and dark mode." />
-    <meta name="keywords" content="markdown, pdf, editor, converter, mermaid, diagrams, syntax highlighting" />
+    <meta name="description" content="Markdown2PDF - A beautiful, production-ready markdown editor with live preview and PDF export. Features syntax highlighting, Mermaid diagrams, LaTeX math equations, and dark mode." />
+    <meta name="keywords" content="markdown to pdf, markdown editor, markdown converter, mermaid diagrams, latex math, syntax highlighting, browser markdown editor" />
     <meta name="author" content="Ashish" />
+    <meta name="robots" content="index, follow" />
+    <meta name="google-site-verification" content="1UpHMajCLJISBerWywJuL9Qa6Lux3RHXe3k6IBrmVNY" />
+    <link rel="canonical" href="https://markdown-to-pdf-pi.vercel.app/" />
     
-    <!-- Open Graph -->
-    <meta property="og:title" content="Markdown2PDF" />
-    <meta property="og:description" content="Beautiful markdown editing with live preview and PDF export" />
+    <!-- Open Graph / Facebook -->
+    <meta property="og:title" content="Markdown2PDF - Beautiful Markdown Editor with PDF Export" />
+    <meta property="og:description" content="A beautiful, production-ready markdown editor with live preview and PDF export. Features syntax highlighting, Mermaid diagrams, LaTeX math, and dark mode." />
     <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://markdown-to-pdf-pi.vercel.app/" />
+    <meta property="og:site_name" content="Markdown2PDF" />
+    <meta property="og:locale" content="en_US" />
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Markdown2PDF - Beautiful Markdown Editor with PDF Export" />
+    <meta name="twitter:description" content="A beautiful, production-ready markdown editor with live preview and PDF export. Features syntax highlighting, Mermaid diagrams, LaTeX math, and dark mode." />
     
     <!-- Theme Color -->
     <meta name="theme-color" content="#2563eb" />
@@ -24,9 +35,59 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     
     <title>Markdown2PDF - Beautiful Markdown Editor with PDF Export</title>
+
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Markdown2PDF",
+      "url": "https://markdown-to-pdf-pi.vercel.app/",
+      "description": "A beautiful, production-ready markdown editor with live preview and PDF export. Features syntax highlighting, Mermaid diagrams, and LaTeX math support.",
+      "applicationCategory": "UtilityApplication",
+      "operatingSystem": "All",
+      "browserRequirements": "Requires JavaScript. Requires HTML5."
+    }
+    </script>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Fallback SEO content visible to search engine crawlers before JavaScript loads -->
+      <div style="max-width: 800px; margin: 0 auto; padding: 2rem; font-family: system-ui, -apple-system, sans-serif; line-height: 1.6; color: #1f2937;">
+        <h1 style="font-size: 2.25rem; font-weight: 800; color: #1e3a8a; margin-bottom: 1.5rem;">Markdown2PDF - Beautiful Markdown Editor with PDF Export</h1>
+        <p style="font-size: 1.125rem; color: #4b5563; margin-bottom: 1.5rem;">Markdown2PDF is a free, beautiful, and production-ready online Markdown editor that runs completely in your web browser. Write markdown in real-time, preview your formatting instantly on a simulated A4 sheet, and export to high-quality PDF files with a single click.</p>
+        
+        <h2 style="font-size: 1.5rem; font-weight: 700; color: #1f2937; margin-top: 2rem; margin-bottom: 1rem;">Key Features of Markdown2PDF</h2>
+        <ul style="padding-left: 1.5rem; margin-bottom: 1.5rem; list-style-type: disc;">
+          <li style="margin-bottom: 0.5rem;"><strong>Real-time Live Preview:</strong> Instantly visualize your styled Markdown output as you type.</li>
+          <li style="margin-bottom: 0.5rem;"><strong>Universal Syntax Support:</strong> Supports lists, tables, bold/italic text, links, blockquotes, task lists, and inline/block code formatting.</li>
+          <li style="margin-bottom: 0.5rem;"><strong>Syntax Highlighting:</strong> Automatically highlight code syntax for various programming languages including JavaScript, Python, HTML, CSS, and more.</li>
+          <li style="margin-bottom: 0.5rem;"><strong>Mermaid Diagrams:</strong> Create flowcharts, sequence diagrams, and class diagrams directly using Markdown blocks.</li>
+          <li style="margin-bottom: 0.5rem;"><strong>LaTeX Math Equations:</strong> Render beautiful mathematical equations with KaTeX integration (inline and block math support).</li>
+          <li style="margin-bottom: 0.5rem;"><strong>Admonitions &amp; Callout boxes:</strong> Include professional note, tip, warning, and danger boxes to make your documents stand out.</li>
+          <li style="margin-bottom: 0.5rem;"><strong>100% Client-Side &amp; Private:</strong> Your files and documents are processed locally in your browser and saved to local storage. Your data never leaves your computer.</li>
+          <li style="margin-bottom: 0.5rem;"><strong>Dark Mode Support:</strong> Switch between light and dark editor themes for a comfortable writing experience.</li>
+        </ul>
+
+        <h2 style="font-size: 1.5rem; font-weight: 700; color: #1f2937; margin-top: 2rem; margin-bottom: 1rem;">How to Convert Markdown to PDF</h2>
+        <ol style="padding-left: 1.5rem; margin-bottom: 1.5rem; list-style-type: decimal;">
+          <li style="margin-bottom: 0.5rem;">Write or paste your Markdown text into the interactive editor pane.</li>
+          <li style="margin-bottom: 0.5rem;">Use the toolbar helper buttons to quickly insert headers, lists, links, images, tables, or Mermaid code.</li>
+          <li style="margin-bottom: 0.5rem;">Verify the layout and preview in the simulated A4 paper view.</li>
+          <li style="margin-bottom: 0.5rem;">Click the "Export PDF" button in the navigation header to open your system print dialog and save the document as a high-quality PDF.</li>
+        </ol>
+
+        <h2 style="font-size: 1.5rem; font-weight: 700; color: #1f2937; margin-top: 2rem; margin-bottom: 1rem;">Frequently Asked Questions</h2>
+        <h3 style="font-size: 1.25rem; font-weight: 600; color: #374151; margin-top: 1.5rem; margin-bottom: 0.5rem;">Is my data sent to any server?</h3>
+        <p style="color: #4b5563; margin-bottom: 1rem;">No. Markdown2PDF processes all text, diagrams, equations, and PDFs entirely client-side using JavaScript. No document data is sent to external servers, making it completely secure and private.</p>
+
+        <h3 style="font-size: 1.25rem; font-weight: 600; color: #374151; margin-top: 1.5rem; margin-bottom: 0.5rem;">Can I save my work and resume later?</h3>
+        <p style="color: #4b5563; margin-bottom: 1rem;">Yes. The editor automatically saves your work, document title, and theme preference to your browser's local storage. You can safely refresh the page or return later without losing your content.</p>
+
+        <h3 style="font-size: 1.25rem; font-weight: 600; color: #374151; margin-top: 1.5rem; margin-bottom: 0.5rem;">How can I print in A4 layout?</h3>
+        <p style="color: #4b5563; margin-bottom: 1rem;">The preview pane is specifically styled to simulate an A4 paper layout. When you click "Export PDF", the editor UI is automatically hidden so only the formatted content is printed cleanly.</p>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
