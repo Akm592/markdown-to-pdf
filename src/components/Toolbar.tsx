@@ -39,11 +39,12 @@ const Toolbar: FC<ToolbarProps> = ({ onInsert }) => {
   ];
 
   const ToolButton = ({ tool }: { tool: ToolItem }) => (
-    <div className="relative group">
+    <div className="relative group shrink-0">
       <button
         onClick={() => onInsert(tool.template)}
-        className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 dark:text-gray-400 dark:hover:bg-blue-900/20 dark:hover:text-blue-400 rounded-md transition-all duration-150 active:scale-95"
+        className="p-2.5 sm:p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 dark:text-gray-400 dark:hover:bg-blue-900/20 dark:hover:text-blue-400 rounded-md transition-all duration-150 active:scale-95"
         title={tool.label}
+        aria-label={tool.label}
       >
         <tool.icon className="w-4.5 h-4.5" />
         <span className="sr-only">{tool.label}</span>
@@ -60,7 +61,7 @@ const Toolbar: FC<ToolbarProps> = ({ onInsert }) => {
   );
 
   const Divider = () => (
-    <div className="w-px h-6 bg-gray-200 dark:bg-gray-700 mx-1.5" />
+    <div className="w-px h-6 bg-gray-200 dark:bg-gray-700 mx-1.5 shrink-0" />
   );
 
   return (
