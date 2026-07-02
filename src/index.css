@@ -258,12 +258,59 @@
 }
 
 /* ========================================
+   Print Document (export target)
+
+   Rendered off-screen at a fixed A4 printable
+   width so export is identical on mobile and
+   desktop. The off-screen positioning is reset
+   during print (react-to-print clones the node
+   into a print iframe).
+   ======================================== */
+.print-document {
+  position: fixed;
+  left: -10000px;
+  top: 0;
+}
+
+/* ========================================
    Print Styles
    ======================================== */
 @media print {
   @page {
     size: A4;
     margin: 2cm;
+  }
+
+  /* Bring the print target back into normal flow and fill the page width */
+  .print-document {
+    position: static !important;
+    left: auto !important;
+    top: auto !important;
+    width: 100% !important;
+  }
+
+  /* Scale diagrams and images down to the page instead of clipping them */
+  svg,
+  img {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  /* Keep headings attached to the content that follows them */
+  h1,
+  h2,
+  h3,
+  h4 {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  /* Wrap long code instead of overflowing the page */
+  pre,
+  code {
+    white-space: pre-wrap !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
   }
 
   body {
@@ -327,6 +374,7 @@
   .prose table {
     width: 100% !important;
     max-width: 100% !important;
+    table-layout: fixed !important;
   }
 
   .prose td, .prose th {

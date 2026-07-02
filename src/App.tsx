@@ -2,12 +2,15 @@ import { useState, useEffect, useRef } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import { ErrorBoundary } from 'react-error-boundary';
 import { toast } from 'sonner';
-import { type editor } from 'monaco-editor';
 import Header from './components/Header';
 import Toolbar from './components/Toolbar';
 import MarkdownEditor from './components/Editor';
+import MobileEditor from './components/MobileEditor';
 import Preview from './components/Preview';
+import PrintDocument from './components/PrintDocument';
+import type { EditorHandle } from './components/editorHandle';
 import useLocalStorage from './hooks/useLocalStorage';
+import useMediaQuery from './hooks/useMediaQuery';
 import Layout from './components/Layout';
 import { ErrorFallback } from './components/ErrorBoundary';
 
@@ -163,9 +166,12 @@ function App() {
   const [title, setTitle] = useLocalStorage<string>('md_title', 'Untitled Document');
   const [theme, setTheme] = useLocalStorage<'light' | 'dark'>('md_theme', 'light');
   const [activeTab, setActiveTab] = useState<'editor' | 'preview'>('editor');
-  
-  const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
-  const previewRef = useRef<HTMLDivElement>(null);
+
+  // Use Monaco on >= sm screens, the lightweight textarea editor below that.
+  const isDesktop = useMediaQuery('(min-width: 640px)');
+
+  const editorHandleRef = useRef<EditorHandle>(null);
+  const printRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (theme === 'dark') {
@@ -176,24 +182,14 @@ function App() {
   }, [theme]);
 
   const handlePrint = useReactToPrint({
-    contentRef: previewRef,
+    contentRef: printRef,
     documentTitle: title,
     onAfterPrint: () => toast.success('PDF exported successfully!'),
     onPrintError: () => toast.error('Failed to export PDF'),
   });
 
-  const handleEditorMount = (editor: editor.IStandaloneCodeEditor) => {
-    editorRef.current = editor;
-  };
-
   const handleInsert = (template: string) => {
-    if (editorRef.current) {
-      const selection = editorRef.current.getSelection();
-      const text = template;
-      const op = {range: selection!, text: text, forceMoveMarkers: true};
-      editorRef.current.executeEdits("my-source", [op]);
-      editorRef.current.focus();
-    }
+    editorHandleRef.current?.insert(template);
   };
 
   const handleReset = () => {
@@ -245,21 +241,32 @@ function App() {
             <div className={`flex flex-col h-full ${activeTab === 'editor' ? 'w-full' : 'hidden'} sm:w-1/2 sm:flex border-r border-gray-200 dark:border-gray-700`}>
               <Toolbar onInsert={handleInsert} />
               <div className="flex-1 overflow-hidden">
-                <MarkdownEditor 
-                  value={markdown} 
-                  onChange={(val) => setMarkdown(val || '')} 
-                  theme={theme}
-                  onEditorMount={handleEditorMount}
-                />
+                {isDesktop ? (
+                  <MarkdownEditor
+                    ref={editorHandleRef}
+                    value={markdown}
+                    onChange={(val) => setMarkdown(val || '')}
+                    theme={theme}
+                  />
+                ) : (
+                  <MobileEditor
+                    ref={editorHandleRef}
+                    value={markdown}
+                    onChange={(val) => setMarkdown(val)}
+                  />
+                )}
               </div>
             </div>
 
             {/* Preview Pane */}
             <div className={`h-full bg-gray-100 dark:bg-gray-900 ${activeTab === 'preview' ? 'w-full' : 'hidden'} sm:w-1/2 sm:block`}>
-              <Preview content={markdown} ref={previewRef} theme={theme} />
+              <Preview content={markdown} theme={theme} />
             </div>
           </div>
         </div>
+
+        {/* Off-screen fixed-width A4 render used as the print/export target */}
+        <PrintDocument content={markdown} ref={printRef} />
       </Layout>
     </ErrorBoundary>
   );
