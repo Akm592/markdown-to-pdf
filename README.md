@@ -8,10 +8,11 @@ A modern, client-side application built with React and TypeScript that converts 
 
 - **Real-time Preview**: See your changes instantly as you type.
 - **Split-Screen Interface**: Code editor on the left, live preview on the right.
-- **Professional PDF Export**: Generates clean, A4-sized PDF documents with proper margins and styling.
+- **Multi-Format Export**: PDF (A4, via the print dialog), Word `.docx`, and the raw `.md` source.
 - **Syntax Highlighting**: Uses Monaco Editor (VS Code's editor) for a premium writing experience.
 - **Dark Mode**: Fully supported dark theme for comfortable writing in low light.
 - **Local Persistence**: Your work is automatically saved to your browser's local storage, so you never lose data.
+- **Fully Offline**: Monaco is served from this app's own origin, not a third-party CDN, so nothing about your document leaves the browser.
 - **Markdown Support**:
   - GitHub Flavored Markdown (GFM)
   - Tables
@@ -27,6 +28,7 @@ A modern, client-side application built with React and TypeScript that converts 
 - **Editor**: [Monaco Editor](https://microsoft.github.io/monaco-editor/)
 - **Markdown Engine**: [react-markdown](https://github.com/remarkjs/react-markdown) + [remark-gfm](https://github.com/remarkjs/remark-gfm)
 - **PDF Generation**: [react-to-print](https://github.com/gregnb/react-to-print)
+- **DOCX Generation**: [mdast2docx](https://github.com/md2docx/mdast2docx) (lazy-loaded; built on [docx](https://docx.js.org/))
 - **Icons**: [Lucide React](https://lucide.dev/)
 
 ## 📦 Installation
@@ -58,12 +60,22 @@ A modern, client-side application built with React and TypeScript that converts 
 markdown-to-pdf/
 ├── src/
 │   ├── components/
-│   │   ├── Editor.tsx      # Monaco Editor wrapper
-│   │   ├── Header.tsx      # Top navigation and actions
-│   │   ├── Preview.tsx     # Markdown rendering and print layout
-│   │   └── Toolbar.tsx     # Markdown insertion tools
+│   │   ├── Editor.tsx           # Monaco wrapper (desktop)
+│   │   ├── MobileEditor.tsx     # Textarea editor (small screens)
+│   │   ├── Header.tsx           # Top navigation and actions
+│   │   ├── ExportMenu.tsx       # PDF / Word / Markdown menu
+│   │   ├── MarkdownDocument.tsx # Shared renderer (preview + print)
+│   │   ├── Preview.tsx          # On-screen A4 sheet
+│   │   ├── PrintDocument.tsx    # Off-screen fixed-width print target
+│   │   └── Toolbar.tsx          # Markdown insertion tools
 │   ├── hooks/
-│   │   └── useLocalStorage.ts # Custom hook for persistence
+│   │   ├── useLocalStorage.ts   # Debounced persistence
+│   │   ├── useDebouncedValue.ts # Keeps typing off the render path
+│   │   └── useMediaQuery.ts     # Chooses the editor for the viewport
+│   ├── lib/
+│   │   ├── markdownPlugins.ts   # Shared remark config (preview + export)
+│   │   ├── exportDocx.ts        # Lazy-loaded DOCX pipeline
+│   │   └── download.ts          # Blob download helper
 │   ├── App.tsx             # Main application layout and logic
 │   ├── index.css           # Global styles and Tailwind directives
 │   └── main.tsx            # Entry point
@@ -80,6 +92,9 @@ The application uses Tailwind CSS for styling. You can customize the color palet
 
 ### PDF Styling
 PDF styles are defined in `src/index.css` under the `@media print` query. You can adjust margins, page sizes, and hide specific elements during printing.
+
+### DOCX Styling
+Word output is assembled in `src/lib/exportDocx.ts`. Page size and margins are set there (A4 at 2cm, matching the PDF), and the plugin list controls which markdown features are converted.
 
 ## 🤝 Contributing
 
