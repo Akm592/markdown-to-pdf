@@ -1,7 +1,18 @@
 import { forwardRef, useImperativeHandle, useRef } from 'react';
-import Editor, { type OnMount } from '@monaco-editor/react';
-import { type editor } from 'monaco-editor';
+import Editor, { loader, type OnMount } from '@monaco-editor/react';
 import type { EditorHandle } from './editorHandle';
+
+// Serve Monaco from our own origin instead of @monaco-editor/loader's default
+// jsDelivr CDN: the app claims to be fully client-side, and this also keeps the
+// editor working offline. The assets are copied to dist/monaco/vs at build time
+// (see vite.config.ts) rather than bundled, so Monaco stays out of the JS graph.
+//
+// Deliberately NOT `import { type editor } from 'monaco-editor'` -- with
+// verbatimModuleSyntax that emits a real side-effect import and pulls the whole
+// 3.6MB package into the entry chunk while the loader still fetches its own copy.
+loader.config({ paths: { vs: '/monaco/vs' } });
+
+type IStandaloneCodeEditor = Parameters<OnMount>[0];
 
 interface EditorProps {
   value: string;
@@ -11,7 +22,7 @@ interface EditorProps {
 
 const MarkdownEditor = forwardRef<EditorHandle, EditorProps>(
   ({ value, onChange, theme = 'light' }, ref) => {
-    const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
+    const editorRef = useRef<IStandaloneCodeEditor | null>(null);
 
     useImperativeHandle(ref, () => ({
       insert: (text: string) => {

@@ -1,16 +1,23 @@
 import { type FC } from 'react';
-import { Download, Moon, Sun, RotateCcw, FileText, Github } from 'lucide-react';
+import { Moon, Sun, RotateCcw, FileText, Github } from 'lucide-react';
+import ExportMenu, { type ExportMenuProps } from './ExportMenu';
 
-interface HeaderProps {
+interface HeaderProps extends ExportMenuProps {
   title: string;
   setTitle: (title: string) => void;
   onReset: () => void;
-  onExport: () => void;
   theme: 'light' | 'dark';
   toggleTheme: () => void;
 }
 
-const Header: FC<HeaderProps> = ({ title, setTitle, onReset, onExport, theme, toggleTheme }) => {
+const Header: FC<HeaderProps> = ({
+  title,
+  setTitle,
+  onReset,
+  theme,
+  toggleTheme,
+  ...exportProps
+}) => {
   return (
     <header className="flex items-center justify-between px-4 py-3 bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border-b border-gray-200/80 dark:border-gray-700/80 shadow-sm z-10 print:hidden">
       {/* Logo & Brand */}
@@ -61,7 +68,7 @@ const Header: FC<HeaderProps> = ({ title, setTitle, onReset, onExport, theme, to
         <button
           onClick={onReset}
           className="p-2.5 text-gray-500 hover:text-red-600 hover:bg-red-50 dark:text-gray-400 dark:hover:bg-red-900/20 dark:hover:text-red-400 rounded-lg transition-all group"
-          title="Reset Document (Ctrl+Shift+R)"
+          title="Reset Document"
         >
           <RotateCcw className="w-5 h-5 group-hover:rotate-[-45deg] transition-transform" />
         </button>
@@ -77,14 +84,8 @@ const Header: FC<HeaderProps> = ({ title, setTitle, onReset, onExport, theme, to
 
         <div className="w-px h-6 bg-gray-200 dark:bg-gray-700 mx-1" />
 
-        {/* Export Button */}
-        <button
-          onClick={onExport}
-          className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg font-medium transition-all shadow-md hover:shadow-lg active:scale-[0.98]"
-        >
-          <Download className="w-4 h-4" />
-          <span className="hidden sm:inline">Export PDF</span>
-        </button>
+        {/* Export: PDF / Word / Markdown */}
+        <ExportMenu {...exportProps} />
       </div>
     </header>
   );

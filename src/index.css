@@ -326,11 +326,6 @@
     color: #1f2937 !important;
   }
 
-  /* Hide non-printable elements */
-  .print\\:hidden {
-    display: none !important;
-  }
-
   /* Page break utilities */
   .break-before-page {
     break-before: page;

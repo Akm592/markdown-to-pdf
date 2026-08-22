@@ -1,9 +1,9 @@
 import { useEffect, useId, useState } from 'react';
 import mermaid from 'mermaid';
+import MermaidLoading from './MermaidLoading';
 
 interface MermaidProps {
   chart: string;
-  theme?: 'light' | 'dark';
 }
 
 // Initialize mermaid once at module level
@@ -11,11 +11,14 @@ let mermaidInitialized = false;
 
 const initMermaid = () => {
   if (mermaidInitialized) return;
-  
+
   mermaid.initialize({
     startOnLoad: false,
     theme: 'default',
-    securityLevel: 'loose',
+    // 'loose' disables mermaid's sanitisation of diagram-supplied HTML, which
+    // makes pasting someone else's markdown an XSS vector. 'strict' still
+    // renders htmlLabels, it just sanitises them first.
+    securityLevel: 'strict',
     fontFamily: 'Inter, system-ui, sans-serif',
     suppressErrorRendering: true,
     flowchart: {
@@ -37,7 +40,7 @@ const initMermaid = () => {
       edgeLabelBackground: '#ffffff',
     },
   });
-  
+
   mermaidInitialized = true;
 };
 
@@ -49,23 +52,23 @@ const Mermaid = ({ chart }: MermaidProps) => {
 
   useEffect(() => {
     initMermaid();
-    
+
     let isMounted = true;
-    
+
     const renderDiagram = async () => {
       setIsLoading(true);
       setError(null);
-      
+
       try {
         // Validate chart syntax
         await mermaid.parse(chart);
-        
+
         // Generate a valid ID (must start with letter, no special chars)
         const id = `mermaid-${uniqueId.replace(/[^a-zA-Z0-9]/g, '')}`;
-        
+
         // Render the chart
         const result = await mermaid.render(id, chart);
-        
+
         if (isMounted) {
           setSvg(result.svg);
           setError(null);
@@ -73,7 +76,7 @@ const Mermaid = ({ chart }: MermaidProps) => {
         }
       } catch (err: unknown) {
         console.error('Mermaid rendering error:', err);
-        
+
         if (isMounted) {
           let errorMessage = 'Failed to render diagram';
           if (err instanceof Error) {
@@ -90,7 +93,7 @@ const Mermaid = ({ chart }: MermaidProps) => {
 
     // Small delay to ensure DOM is ready
     const timeoutId = setTimeout(renderDiagram, 50);
-    
+
     return () => {
       isMounted = false;
       clearTimeout(timeoutId);
@@ -114,21 +117,14 @@ const Mermaid = ({ chart }: MermaidProps) => {
   }
 
   if (isLoading) {
-    return (
-      <div className="my-4 p-8 bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-center">
-        <div className="flex items-center gap-3 text-slate-500">
-          <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
-          <span className="text-sm">Rendering diagram...</span>
-        </div>
-      </div>
-    );
+    return <MermaidLoading />;
   }
 
   return (
     <div className="my-4 p-4 bg-white border border-slate-200 rounded-lg overflow-x-auto">
-      <div 
+      <div
         className="flex justify-center min-w-fit"
-        dangerouslySetInnerHTML={{ __html: svg }} 
+        dangerouslySetInnerHTML={{ __html: svg }}
       />
     </div>
   );

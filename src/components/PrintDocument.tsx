@@ -1,4 +1,4 @@
-import { forwardRef } from 'react';
+import { forwardRef, memo } from 'react';
 import MarkdownDocument from './MarkdownDocument';
 
 interface PrintDocumentProps {
@@ -24,12 +24,14 @@ const PrintDocument = forwardRef<HTMLDivElement, PrintDocumentProps>(({ content 
         boxSizing: 'border-box',
       }}
     >
-      {/* Print is always light-themed to match the paper output */}
-      <MarkdownDocument content={content} theme="light" />
+      <MarkdownDocument content={content} />
     </div>
   );
 });
 
 PrintDocument.displayName = 'PrintDocument';
 
-export default PrintDocument;
+// App feeds this a debounced copy of the document, but memoising as well means
+// unrelated App re-renders (theme, title, tab switches) never re-render the
+// entire second copy of the document.
+export default memo(PrintDocument);

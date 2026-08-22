@@ -1,50 +1,25 @@
+import { lazy, memo, Suspense } from 'react';
 import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
-import remarkGemoji from 'remark-gemoji';
-import remarkFrontmatter from 'remark-frontmatter';
-import remarkDirective from 'remark-directive';
-import { visit } from 'unist-util-visit';
-import Mermaid from './Mermaid';
 import CodeBlock from './CodeBlock';
 import Admonition from './Admonition';
+import MermaidLoading from './MermaidLoading';
+import { remarkPlugins } from '../lib/markdownPlugins';
 import 'katex/dist/katex.min.css';
+
+// mermaid pulls in cytoscape and a chunk per diagram type -- well over 1MB that
+// most documents never need. Loading it on first use keeps it out of the
+// initial bundle entirely.
+const Mermaid = lazy(() => import('./Mermaid'));
 
 interface MarkdownDocumentProps {
   content: string;
-  theme?: 'light' | 'dark';
-}
-
-// Custom plugin to transform directive nodes into admonitions
-function remarkAdmonitions() {
-  return (tree: any) => {
-    visit(tree, (node) => {
-      if (
-        node.type === 'containerDirective' ||
-        node.type === 'leafDirective' ||
-        node.type === 'textDirective'
-      ) {
-        const validTypes = ['note', 'tip', 'info', 'warning', 'danger'];
-        if (validTypes.includes(node.name)) {
-          const data = node.data || (node.data = {});
-          const tagName = 'admonition';
-
-          data.hName = tagName;
-          data.hProperties = {
-            type: node.name,
-            title: node.attributes?.title || '',
-          };
-        }
-      }
-    });
-  };
 }
 
 // Shared markdown renderer used by both the on-screen Preview and the
 // fixed-width PrintDocument, so the plugin config and component overrides
 // stay in exactly one place.
-const MarkdownDocument = ({ content, theme = 'light' }: MarkdownDocumentProps) => {
+const MarkdownDocument = ({ content }: MarkdownDocumentProps) => {
   return (
     <article className="prose prose-slate max-w-none
       prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-slate-900
@@ -60,18 +35,11 @@ const MarkdownDocument = ({ content, theme = 'light' }: MarkdownDocumentProps) =
       prose-pre:p-0 prose-pre:bg-transparent prose-pre:overflow-visible
     ">
       <ReactMarkdown
-        remarkPlugins={[
-          remarkGfm,
-          remarkMath,
-          remarkGemoji,
-          remarkFrontmatter,
-          remarkDirective,
-          remarkAdmonitions,
-        ]}
+        remarkPlugins={remarkPlugins}
         rehypePlugins={[rehypeKatex]}
         components={{
           // Admonition component for callouts
-          // @ts-ignore - custom element
+          // @ts-expect-error - custom element injected by remarkAdmonitions
           admonition({ type, title, children }) {
             return (
               <Admonition type={type || 'note'} title={title}>
@@ -80,13 +48,17 @@ const MarkdownDocument = ({ content, theme = 'light' }: MarkdownDocumentProps) =
             );
           },
           // Code blocks and inline code
-          code({ node, className, children, ...props }) {
+          code({ className, children, ...props }) {
             const match = /language-(\w+)/.exec(className || '');
             const isMermaid = match && match[1] === 'mermaid';
 
             // Mermaid diagrams
             if (isMermaid) {
-              return <Mermaid chart={String(children).replace(/\n$/, '')} theme={theme} />;
+              return (
+                <Suspense fallback={<MermaidLoading />}>
+                  <Mermaid chart={String(children).replace(/\n$/, '')} />
+                </Suspense>
+              );
             }
 
             // Check if inline code
@@ -183,4 +155,6 @@ const MarkdownDocument = ({ content, theme = 'light' }: MarkdownDocumentProps) =
   );
 };
 
-export default MarkdownDocument;
+// Re-parsing and re-rendering the whole document is the dominant cost on the
+// typing path, and this component is mounted twice (preview + print target).
+export default memo(MarkdownDocument);

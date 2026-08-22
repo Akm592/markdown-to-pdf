@@ -15,10 +15,39 @@ interface ToolItem {
   shortcut?: string;
 }
 
+// Declared at module scope, not inside Toolbar's render body: components
+// created during render are remounted (and lose their state) on every parent
+// render, which is what react-hooks/static-components flags.
+const ToolButton = ({ tool, onInsert }: { tool: ToolItem; onInsert: (template: string) => void }) => (
+  <div className="relative group shrink-0">
+    <button
+      onClick={() => onInsert(tool.template)}
+      className="p-2.5 sm:p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 dark:text-gray-400 dark:hover:bg-blue-900/20 dark:hover:text-blue-400 rounded-md transition-all duration-150 active:scale-95"
+      title={tool.label}
+      aria-label={tool.label}
+    >
+      <tool.icon className="w-4.5 h-4.5" />
+      <span className="sr-only">{tool.label}</span>
+    </button>
+    {/* Tooltip */}
+    <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 px-2.5 py-1.5 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded-md whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 pointer-events-none shadow-lg">
+      <span>{tool.label}</span>
+      {tool.shortcut && (
+        <span className="ml-2 text-gray-400 text-[10px]">{tool.shortcut}</span>
+      )}
+      <div className="absolute left-1/2 -translate-x-1/2 -top-1 w-2 h-2 bg-gray-900 dark:bg-gray-700 rotate-45" />
+    </div>
+  </div>
+);
+
+const Divider = () => (
+  <div className="w-px h-6 bg-gray-200 dark:bg-gray-700 mx-1.5 shrink-0" />
+);
+
 const Toolbar: FC<ToolbarProps> = ({ onInsert }) => {
   const formattingTools: ToolItem[] = [
-    { icon: Bold, label: 'Bold', template: '**bold text**', shortcut: 'Ctrl+B' },
-    { icon: Italic, label: 'Italic', template: '_italic text_', shortcut: 'Ctrl+I' },
+    { icon: Bold, label: 'Bold', template: '**bold text**' },
+    { icon: Italic, label: 'Italic', template: '_italic text_' },
     { icon: Strikethrough, label: 'Strikethrough', template: '~~strikethrough~~' },
     { icon: Code, label: 'Inline Code', template: '`code`' },
   ];
@@ -38,38 +67,12 @@ const Toolbar: FC<ToolbarProps> = ({ onInsert }) => {
     { icon: GitBranch, label: 'Mermaid Diagram', template: '\n```mermaid\ngraph TD\n    A[Start] --> B{Decision}\n    B -->|Yes| C[Do Something]\n    B -->|No| D[Do Something Else]\n    C --> E[End]\n    D --> E\n```\n' },
   ];
 
-  const ToolButton = ({ tool }: { tool: ToolItem }) => (
-    <div className="relative group shrink-0">
-      <button
-        onClick={() => onInsert(tool.template)}
-        className="p-2.5 sm:p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 dark:text-gray-400 dark:hover:bg-blue-900/20 dark:hover:text-blue-400 rounded-md transition-all duration-150 active:scale-95"
-        title={tool.label}
-        aria-label={tool.label}
-      >
-        <tool.icon className="w-4.5 h-4.5" />
-        <span className="sr-only">{tool.label}</span>
-      </button>
-      {/* Tooltip */}
-      <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 px-2.5 py-1.5 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded-md whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 pointer-events-none shadow-lg">
-        <span>{tool.label}</span>
-        {tool.shortcut && (
-          <span className="ml-2 text-gray-400 text-[10px]">{tool.shortcut}</span>
-        )}
-        <div className="absolute left-1/2 -translate-x-1/2 -top-1 w-2 h-2 bg-gray-900 dark:bg-gray-700 rotate-45" />
-      </div>
-    </div>
-  );
-
-  const Divider = () => (
-    <div className="w-px h-6 bg-gray-200 dark:bg-gray-700 mx-1.5 shrink-0" />
-  );
-
   return (
     <div className="flex items-center gap-0.5 px-3 py-2.5 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 overflow-x-auto print:hidden shadow-sm">
       {/* Formatting Tools */}
       <div className="flex items-center gap-0.5">
         {formattingTools.map((tool) => (
-          <ToolButton key={tool.label} tool={tool} />
+          <ToolButton key={tool.label} tool={tool} onInsert={onInsert} />
         ))}
       </div>
       
@@ -78,7 +81,7 @@ const Toolbar: FC<ToolbarProps> = ({ onInsert }) => {
       {/* Block Tools */}
       <div className="flex items-center gap-0.5">
         {blockTools.map((tool) => (
-          <ToolButton key={tool.label} tool={tool} />
+          <ToolButton key={tool.label} tool={tool} onInsert={onInsert} />
         ))}
       </div>
       
@@ -87,7 +90,7 @@ const Toolbar: FC<ToolbarProps> = ({ onInsert }) => {
       {/* Insert Tools */}
       <div className="flex items-center gap-0.5">
         {insertTools.map((tool) => (
-          <ToolButton key={tool.label} tool={tool} />
+          <ToolButton key={tool.label} tool={tool} onInsert={onInsert} />
         ))}
       </div>
     </div>

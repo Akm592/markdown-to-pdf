@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback, useDeferredValue } from 'react';
+import { flushSync } from 'react-dom';
 import { useReactToPrint } from 'react-to-print';
 import { ErrorBoundary } from 'react-error-boundary';
 import { toast } from 'sonner';
@@ -11,8 +12,10 @@ import PrintDocument from './components/PrintDocument';
 import type { EditorHandle } from './components/editorHandle';
 import useLocalStorage from './hooks/useLocalStorage';
 import useMediaQuery from './hooks/useMediaQuery';
+import useDebouncedValue from './hooks/useDebouncedValue';
 import Layout from './components/Layout';
 import { ErrorFallback } from './components/ErrorBoundary';
+import { downloadBlob, toFilename } from './lib/download';
 
 const DEFAULT_MARKDOWN = `# Welcome to Markdown2PDF :rocket:
 
@@ -166,6 +169,13 @@ function App() {
   const [title, setTitle] = useLocalStorage<string>('md_title', 'Untitled Document');
   const [theme, setTheme] = useLocalStorage<'light' | 'dark'>('md_theme', 'light');
   const [activeTab, setActiveTab] = useState<'editor' | 'preview'>('editor');
+  const [isExportingDocx, setIsExportingDocx] = useState(false);
+
+  // The preview can lag a keystroke behind without anyone noticing; the
+  // off-screen print target can lag much further, since it is only read when
+  // an export actually happens. Both keep typing off the critical path.
+  const previewMarkdown = useDeferredValue(markdown);
+  const [printMarkdown, flushPrintMarkdown] = useDebouncedValue(markdown, 400);
 
   // Use Monaco on >= sm screens, the lightweight textarea editor below that.
   const isDesktop = useMediaQuery('(min-width: 640px)');
@@ -184,6 +194,13 @@ function App() {
   const handlePrint = useReactToPrint({
     contentRef: printRef,
     documentTitle: title,
+    // The print target trails the editor by up to 400ms. react-to-print clones
+    // the live DOM, so force it up to date first or a fast "type then export"
+    // would silently print the previous revision.
+    onBeforePrint: () => {
+      flushSync(() => flushPrintMarkdown());
+      return Promise.resolve();
+    },
     onAfterPrint: () => toast.success('PDF exported successfully!'),
     onPrintError: () => toast.error('Failed to export PDF'),
   });
@@ -191,6 +208,30 @@ function App() {
   const handleInsert = (template: string) => {
     editorHandleRef.current?.insert(template);
   };
+
+  // The DOCX writer, the LaTeX converter and the mermaid rasteriser are all
+  // loaded on demand so they stay out of the initial bundle.
+  const handleExportDocx = useCallback(async () => {
+    setIsExportingDocx(true);
+    try {
+      const { exportDocx } = await import('./lib/exportDocx');
+      await exportDocx(markdown, title);
+      toast.success('Word document exported');
+    } catch (error) {
+      console.error(error);
+      toast.error('Failed to export Word document');
+    } finally {
+      setIsExportingDocx(false);
+    }
+  }, [markdown, title]);
+
+  const handleExportMarkdown = useCallback(() => {
+    downloadBlob(
+      new Blob([markdown], { type: 'text/markdown;charset=utf-8' }),
+      toFilename(title, 'md')
+    );
+    toast.success('Markdown file downloaded');
+  }, [markdown, title]);
 
   const handleReset = () => {
     if (window.confirm('Are you sure you want to clear the editor?')) {
@@ -207,7 +248,10 @@ function App() {
             title={title} 
             setTitle={setTitle} 
             onReset={handleReset} 
-            onExport={() => handlePrint && handlePrint()} 
+            onExportPdf={handlePrint}
+            onExportDocx={handleExportDocx}
+            onExportMarkdown={handleExportMarkdown}
+            isExportingDocx={isExportingDocx}
             theme={theme}
             toggleTheme={() => setTheme(theme === 'light' ? 'dark' : 'light')}
           />
@@ -260,13 +304,13 @@ function App() {
 
             {/* Preview Pane */}
             <div className={`h-full bg-gray-100 dark:bg-gray-900 ${activeTab === 'preview' ? 'w-full' : 'hidden'} sm:w-1/2 sm:block`}>
-              <Preview content={markdown} theme={theme} />
+              <Preview content={previewMarkdown} />
             </div>
           </div>
         </div>
 
         {/* Off-screen fixed-width A4 render used as the print/export target */}
-        <PrintDocument content={markdown} ref={printRef} />
+        <PrintDocument content={printMarkdown} ref={printRef} />
       </Layout>
     </ErrorBoundary>
   );
