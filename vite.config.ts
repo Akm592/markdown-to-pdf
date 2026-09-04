@@ -33,6 +33,16 @@ export default defineConfig({
       ],
     }),
   ],
+  resolve: {
+    alias: {
+      // jsPDF statically imports html2canvas for its `.html()` helper, which
+      // this app never calls -- exportPdfImage drives html2canvas-pro directly.
+      // Without this alias the PDF chunk ships BOTH libraries (~200KB of the
+      // second one is dead weight). html2canvas-pro is an API-compatible fork,
+      // so pointing the old specifier at it collapses them into one copy.
+      html2canvas: 'html2canvas-pro',
+    },
+  },
   build: {
     rollupOptions: {
       output: {

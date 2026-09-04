@@ -262,11 +262,17 @@
 
    Rendered off-screen at a fixed A4 printable
    width so export is identical on mobile and
-   desktop. The off-screen positioning is reset
-   during print (react-to-print clones the node
-   into a print iframe).
+   desktop.
+
+   The off-screen positioning lives on the HOST,
+   not on .print-document itself: react-to-print
+   clones the .print-document node into an iframe,
+   and a clone carrying `position: fixed; left:
+   -10000px` would print off-page if the media
+   override were ever missed. The host is never
+   cloned, so the clone has nothing to undo.
    ======================================== */
-.print-document {
+.print-host {
   position: fixed;
   left: -10000px;
   top: 0;
@@ -281,13 +287,10 @@
     margin: 2cm;
   }
 
-  /* Bring the print target back into normal flow and fill the page width */
-  .print-document {
-    position: static !important;
-    left: auto !important;
-    top: auto !important;
-    width: 100% !important;
-  }
+  /* Never set a width here. .print-document is pinned to 170mm (the A4
+     printable box) inline; a percentage would resolve against the print
+     iframe, which react-to-print sizes to the device viewport -- that is
+     exactly what squeezed mobile exports into a narrow column. */
 
   /* Scale diagrams and images down to the page instead of clipping them */
   svg,
@@ -317,6 +320,10 @@
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
     color-adjust: exact !important;
+    /* Android Chrome boosts font sizes when text is wider than the layout
+       viewport, which wrecks a fixed-width print layout. */
+    -webkit-text-size-adjust: 100% !important;
+    text-size-adjust: 100% !important;
   }
 
   /* Force light mode for print */
@@ -359,6 +366,8 @@
   code,
   blockquote,
   .mermaid,
+  .mermaid-figure,
+  .admonition,
   img,
   .group /* Code block wrapper */ {
     page-break-inside: avoid !important;

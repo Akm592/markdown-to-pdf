@@ -9,6 +9,7 @@ A modern, client-side application built with React and TypeScript that converts 
 - **Real-time Preview**: See your changes instantly as you type.
 - **Split-Screen Interface**: Code editor on the left, live preview on the right.
 - **Multi-Format Export**: PDF (A4, via the print dialog), Word `.docx`, and the raw `.md` source.
+- **PDF (exact layout)**: An alternative PDF export that rasterises the fixed-width print target, bypassing the browser's print stack entirely. Byte-for-byte identical on every device — useful when a mobile browser mis-renders the print dialog. Text is not selectable and the file is larger.
 - **Syntax Highlighting**: Uses Monaco Editor (VS Code's editor) for a premium writing experience.
 - **Dark Mode**: Fully supported dark theme for comfortable writing in low light.
 - **Local Persistence**: Your work is automatically saved to your browser's local storage, so you never lose data.
@@ -75,6 +76,8 @@ markdown-to-pdf/
 │   ├── lib/
 │   │   ├── markdownPlugins.ts   # Shared remark config (preview + export)
 │   │   ├── exportDocx.ts        # Lazy-loaded DOCX pipeline
+│   │   ├── exportPdfImage.ts    # Lazy-loaded raster PDF pipeline
+│   │   ├── print.ts             # Fixed-width print config (A4)
 │   │   └── download.ts          # Blob download helper
 │   ├── App.tsx             # Main application layout and logic
 │   ├── index.css           # Global styles and Tailwind directives
@@ -95,6 +98,9 @@ PDF styles are defined in `src/index.css` under the `@media print` query. You ca
 
 ### DOCX Styling
 Word output is assembled in `src/lib/exportDocx.ts`. Page size and margins are set there (A4 at 2cm, matching the PDF), and the plugin list controls which markdown features are converted.
+
+### Print Layout
+`src/lib/print.ts` pins the print iframe to the A4 printable width (170mm). This matters because `react-to-print` sizes its iframe to the device viewport, and mobile browsers map that layout onto the page directly — without the override, phone exports come out squeezed into a narrow column.
 
 ## 🤝 Contributing
 

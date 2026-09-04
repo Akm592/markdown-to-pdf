@@ -51,7 +51,9 @@ const Admonition: FC<AdmonitionProps> = ({ type, title, children }) => {
   const Icon = config.icon;
 
   return (
-    <div className={`my-4 rounded-lg border-l-4 ${config.borderColor} ${config.bgColor} p-4`}>
+    // `admonition` carries no styling; it is the stable hook the print
+    // stylesheet and the raster exporter use to keep a callout on one page.
+    <div className={`admonition my-4 rounded-lg border-l-4 ${config.borderColor} ${config.bgColor} p-4`}>
       <div className={`flex items-center gap-2 font-semibold ${config.titleColor} mb-2`}>
         <Icon className={`w-5 h-5 ${config.iconColor}`} />
         <span>{title || ADMONITION_LABELS[type]}</span>
