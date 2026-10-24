@@ -1,11 +1,22 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
+import seoPages from './seo/plugin.ts'
+
+// Canonical origin for every URL in the page tags, sitemap and robots.txt.
+// On Vercel this follows the project's production domain automatically, so
+// adding a custom domain later needs no code change. SITE_URL overrides it.
+const SITE_URL =
+  process.env.SITE_URL ??
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : 'https://markdown-to-pdf-pi.vercel.app')
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
     react(),
+    seoPages(SITE_URL),
     // Self-host Monaco. @monaco-editor/loader otherwise pulls it from jsDelivr
     // at runtime; Editor.tsx points it at /monaco/vs instead. These are plain
     // static assets -- they never enter the Rollup graph, so they cost nothing
@@ -33,6 +44,16 @@ export default defineConfig({
       ],
     }),
   ],
+  resolve: {
+    alias: {
+      // jsPDF statically imports html2canvas for its `.html()` helper, which
+      // this app never calls -- exportPdfImage drives html2canvas-pro directly.
+      // Without this alias the PDF chunk ships BOTH libraries (~200KB of the
+      // second one is dead weight). html2canvas-pro is an API-compatible fork,
+      // so pointing the old specifier at it collapses them into one copy.
+      html2canvas: 'html2canvas-pro',
+    },
+  },
   build: {
     rollupOptions: {
       output: {

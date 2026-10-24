@@ -262,11 +262,17 @@
 
    Rendered off-screen at a fixed A4 printable
    width so export is identical on mobile and
-   desktop. The off-screen positioning is reset
-   during print (react-to-print clones the node
-   into a print iframe).
+   desktop.
+
+   The off-screen positioning lives on the HOST,
+   not on .print-document itself: react-to-print
+   clones the .print-document node into an iframe,
+   and a clone carrying `position: fixed; left:
+   -10000px` would print off-page if the media
+   override were ever missed. The host is never
+   cloned, so the clone has nothing to undo.
    ======================================== */
-.print-document {
+.print-host {
   position: fixed;
   left: -10000px;
   top: 0;
@@ -281,13 +287,10 @@
     margin: 2cm;
   }
 
-  /* Bring the print target back into normal flow and fill the page width */
-  .print-document {
-    position: static !important;
-    left: auto !important;
-    top: auto !important;
-    width: 100% !important;
-  }
+  /* Never set a width here. .print-document is pinned to 170mm (the A4
+     printable box) inline; a percentage would resolve against the print
+     iframe, which react-to-print sizes to the device viewport -- that is
+     exactly what squeezed mobile exports into a narrow column. */
 
   /* Scale diagrams and images down to the page instead of clipping them */
   svg,
@@ -317,6 +320,10 @@
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
     color-adjust: exact !important;
+    /* Android Chrome boosts font sizes when text is wider than the layout
+       viewport, which wrecks a fixed-width print layout. */
+    -webkit-text-size-adjust: 100% !important;
+    text-size-adjust: 100% !important;
   }
 
   /* Force light mode for print */
@@ -359,6 +366,8 @@
   code,
   blockquote,
   .mermaid,
+  .mermaid-figure,
+  .admonition,
   img,
   .group /* Code block wrapper */ {
     page-break-inside: avoid !important;
@@ -410,4 +419,150 @@
 
 .animate-pulse-subtle {
   animation: pulse-subtle 2s ease-in-out infinite;
+}
+/* ========================================
+   Crawlable guide below the editor (seo/pages.ts)
+   Plain CSS: this markup is generated at build time, outside Tailwind's scan.
+   ======================================== */
+.seo {
+  --seo-fg: #1f2937;
+  --seo-muted: #4b5563;
+  --seo-heading: #111827;
+  --seo-link: #2563eb;
+  --seo-border: #e5e7eb;
+  --seo-surface: #ffffff;
+  --seo-code-bg: #f3f4f6;
+  border-top: 1px solid var(--seo-border);
+  background: var(--seo-surface);
+  color: var(--seo-fg);
+  font-family: var(--font-sans);
+  line-height: 1.7;
+}
+
+.dark .seo {
+  --seo-fg: #d1d5db;
+  --seo-muted: #9ca3af;
+  --seo-heading: #f9fafb;
+  --seo-link: #60a5fa;
+  --seo-border: #374151;
+  --seo-surface: #1f2937;
+  --seo-code-bg: #111827;
+}
+
+.seo__inner {
+  max-width: 50rem;
+  margin: 0 auto;
+  padding: 3rem 1rem 2.5rem;
+}
+
+.seo h1 {
+  margin: 0 0 1rem;
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  line-height: 1.2;
+  font-weight: 800;
+  color: var(--seo-heading);
+}
+
+.seo h2 {
+  margin: 2.5rem 0 0.75rem;
+  font-size: 1.375rem;
+  line-height: 1.3;
+  font-weight: 700;
+  color: var(--seo-heading);
+}
+
+.seo h3 {
+  margin: 1.5rem 0 0.25rem;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  color: var(--seo-heading);
+}
+
+.seo p,
+.seo ul,
+.seo ol { margin: 0 0 1rem; }
+
+.seo ul,
+.seo ol { padding-left: 1.5rem; }
+.seo ul { list-style: disc; }
+.seo ol { list-style: decimal; }
+.seo li { margin-bottom: 0.375rem; }
+
+.seo__lead {
+  font-size: 1.125rem;
+  color: var(--seo-muted);
+}
+
+.seo a {
+  color: var(--seo-link);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.seo code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: var(--seo-code-bg);
+  border-radius: 4px;
+  padding: 0.125rem 0.375rem;
+  overflow-wrap: anywhere;
+}
+
+.seo pre {
+  margin: 0 0 1rem;
+  padding: 1rem;
+  background: var(--seo-code-bg);
+  border: 1px solid var(--seo-border);
+  border-radius: 8px;
+  overflow-x: auto;
+}
+
+.seo pre code {
+  padding: 0;
+  background: none;
+  overflow-wrap: normal;
+}
+
+.seo table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  margin: 0 0 1rem;
+}
+
+.seo th,
+.seo td {
+  border: 1px solid var(--seo-border);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.seo th { color: var(--seo-heading); font-weight: 600; }
+
+.seo__crumbs {
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  color: var(--seo-muted);
+}
+
+.seo__tools ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  padding: 0;
+  list-style: none;
+}
+
+.seo__footer {
+  margin-top: 2.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--seo-border);
+  font-size: 0.875rem;
+  color: var(--seo-muted);
+}
+
+@media print {
+  .seo { display: none !important; }
 }

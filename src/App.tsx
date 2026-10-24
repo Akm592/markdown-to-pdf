@@ -16,6 +16,8 @@ import useDebouncedValue from './hooks/useDebouncedValue';
 import Layout from './components/Layout';
 import { ErrorFallback } from './components/ErrorBoundary';
 import { downloadBlob, toFilename } from './lib/download';
+import { PRINT_PAGE_STYLE, printAtFixedWidth } from './lib/print';
+import type { BusyFormat } from './components/ExportMenu';
 
 const DEFAULT_MARKDOWN = `# Welcome to Markdown2PDF :rocket:
 
@@ -165,11 +167,24 @@ Emojis: :smile: :heart: :rocket: :fire: :star: :thumbsup:
 
 
 function App() {
-  const [markdown, setMarkdown] = useLocalStorage<string>('md_content', DEFAULT_MARKDOWN);
+  // The document is the only value big enough to hit the storage quota, and a
+  // silent failure here means the user keeps typing into work that is no longer
+  // being saved -- exactly the case the error screen promises is covered.
+  const handleStorageFailure = useCallback(() => {
+    toast.error('Your work is too large to save in this browser. Export it to keep a copy.', {
+      duration: 8000,
+    });
+  }, []);
+
+  const [markdown, setMarkdown] = useLocalStorage<string>(
+    'md_content',
+    DEFAULT_MARKDOWN,
+    handleStorageFailure
+  );
   const [title, setTitle] = useLocalStorage<string>('md_title', 'Untitled Document');
   const [theme, setTheme] = useLocalStorage<'light' | 'dark'>('md_theme', 'light');
   const [activeTab, setActiveTab] = useState<'editor' | 'preview'>('editor');
-  const [isExportingDocx, setIsExportingDocx] = useState(false);
+  const [busyFormat, setBusyFormat] = useState<BusyFormat>(null);
 
   // The preview can lag a keystroke behind without anyone noticing; the
   // off-screen print target can lag much further, since it is only read when
@@ -194,6 +209,11 @@ function App() {
   const handlePrint = useReactToPrint({
     contentRef: printRef,
     documentTitle: title,
+    // Pins the print iframe's layout to the A4 printable width instead of the
+    // device viewport -- see src/lib/print.ts. Without it, Android exports come
+    // out squeezed into a narrow column.
+    pageStyle: PRINT_PAGE_STYLE,
+    print: (iframe) => printAtFixedWidth(iframe, title),
     // The print target trails the editor by up to 400ms. react-to-print clones
     // the live DOM, so force it up to date first or a fast "type then export"
     // would silently print the previous revision.
@@ -212,7 +232,7 @@ function App() {
   // The DOCX writer, the LaTeX converter and the mermaid rasteriser are all
   // loaded on demand so they stay out of the initial bundle.
   const handleExportDocx = useCallback(async () => {
-    setIsExportingDocx(true);
+    setBusyFormat('docx');
     try {
       const { exportDocx } = await import('./lib/exportDocx');
       await exportDocx(markdown, title);
@@ -221,9 +241,29 @@ function App() {
       console.error(error);
       toast.error('Failed to export Word document');
     } finally {
-      setIsExportingDocx(false);
+      setBusyFormat(null);
     }
   }, [markdown, title]);
+
+  // Rasterises the fixed-width print target instead of going through the
+  // browser's print stack, so the result is identical on every device.
+  const handleExportPdfImage = useCallback(async () => {
+    const target = printRef.current;
+    if (!target) return;
+    setBusyFormat('pdf-image');
+    try {
+      // The print target trails the editor; catch it up before capturing.
+      flushSync(() => flushPrintMarkdown());
+      const { exportPdfImage } = await import('./lib/exportPdfImage');
+      await exportPdfImage(target, title);
+      toast.success('PDF exported successfully!');
+    } catch (error) {
+      console.error(error);
+      toast.error('Failed to export PDF');
+    } finally {
+      setBusyFormat(null);
+    }
+  }, [title, flushPrintMarkdown]);
 
   const handleExportMarkdown = useCallback(() => {
     downloadBlob(
@@ -249,9 +289,10 @@ function App() {
             setTitle={setTitle} 
             onReset={handleReset} 
             onExportPdf={handlePrint}
+            onExportPdfImage={handleExportPdfImage}
             onExportDocx={handleExportDocx}
             onExportMarkdown={handleExportMarkdown}
-            isExportingDocx={isExportingDocx}
+            busyFormat={busyFormat}
             theme={theme}
             toggleTheme={() => setTheme(theme === 'light' ? 'dark' : 'light')}
           />

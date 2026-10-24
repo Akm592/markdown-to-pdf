@@ -1,19 +1,24 @@
 import { useEffect, useRef, useState, type FC } from 'react';
-import { ChevronDown, Download, FileCode, FileText, FileType2, Loader2 } from 'lucide-react';
+import { ChevronDown, Download, FileCode, FileImage, FileText, FileType2, Loader2 } from 'lucide-react';
+
+/** Formats whose export runs long enough to need a busy indicator. */
+export type BusyFormat = 'docx' | 'pdf-image' | null;
 
 export interface ExportMenuProps {
   onExportPdf: () => void;
+  onExportPdfImage: () => void;
   onExportDocx: () => void;
   onExportMarkdown: () => void;
-  /** True while the DOCX chunk is downloading or the document is being built. */
-  isExportingDocx: boolean;
+  /** Which slow export is currently running, if any. */
+  busyFormat: BusyFormat;
 }
 
 const ExportMenu: FC<ExportMenuProps> = ({
   onExportPdf,
+  onExportPdfImage,
   onExportDocx,
   onExportMarkdown,
-  isExportingDocx,
+  busyFormat,
 }) => {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -22,7 +27,12 @@ const ExportMenu: FC<ExportMenuProps> = ({
 
   const items = [
     { label: 'PDF', hint: 'Print dialog', icon: FileText, action: onExportPdf, busy: false },
-    { label: 'Word', hint: '.docx', icon: FileType2, action: onExportDocx, busy: isExportingDocx },
+    // Bypasses the browser print stack entirely, so the layout is identical on
+    // every device. Costs selectable text and file size, hence the hint.
+    { label: 'PDF (exact layout)', hint: 'Image', icon: FileImage, action: onExportPdfImage,
+      busy: busyFormat === 'pdf-image' },
+    { label: 'Word', hint: '.docx', icon: FileType2, action: onExportDocx,
+      busy: busyFormat === 'docx' },
     { label: 'Markdown', hint: '.md', icon: FileCode, action: onExportMarkdown, busy: false },
   ];
 
@@ -90,7 +100,7 @@ const ExportMenu: FC<ExportMenuProps> = ({
         aria-expanded={open}
         className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg font-medium transition-all shadow-md hover:shadow-lg active:scale-[0.98]"
       >
-        {isExportingDocx ? (
+        {busyFormat ? (
           <Loader2 className="w-4 h-4 animate-spin" />
         ) : (
           <Download className="w-4 h-4" />
@@ -105,7 +115,7 @@ const ExportMenu: FC<ExportMenuProps> = ({
           role="menu"
           aria-label="Export format"
           onKeyDown={handleMenuKeyDown}
-          className="absolute right-0 mt-2 w-52 origin-top-right rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl z-50 p-1 animate-fadeIn"
+          className="absolute right-0 mt-2 w-60 origin-top-right rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl z-50 p-1 animate-fadeIn"
         >
           {items.map((item) => (
             <button

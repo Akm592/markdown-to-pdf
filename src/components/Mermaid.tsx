@@ -121,7 +121,7 @@ const Mermaid = ({ chart }: MermaidProps) => {
   }
 
   return (
-    <div className="my-4 p-4 bg-white border border-slate-200 rounded-lg overflow-x-auto">
+    <div className="mermaid-figure my-4 p-4 bg-white border border-slate-200 rounded-lg overflow-x-auto">
       <div
         className="flex justify-center min-w-fit"
         dangerouslySetInnerHTML={{ __html: svg }}

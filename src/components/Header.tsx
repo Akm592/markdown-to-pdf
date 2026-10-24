@@ -29,9 +29,9 @@ const Header: FC<HeaderProps> = ({
           </div>
         </div>
         <div className="hidden sm:block">
-          <h1 className="text-lg font-bold bg-gradient-to-r from-gray-800 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent leading-none">
+          <span className="block text-lg font-bold bg-gradient-to-r from-gray-800 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent leading-none">
             Markdown2PDF
-          </h1>
+          </span>
           <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">by Ashish</p>
         </div>
       </div>

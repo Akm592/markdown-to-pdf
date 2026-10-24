@@ -4,7 +4,13 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 // enough that the work is durable almost immediately.
 const WRITE_DELAY_MS = 500;
 
-function useLocalStorage<T>(key: string, initialValue: T) {
+/**
+ * @param onWriteError Called when persisting fails -- in practice
+ * QuotaExceededError on a large document, or a browser with site data blocked.
+ * The failure is otherwise invisible: the app keeps working from memory and the
+ * user has no way to know their work stopped being saved.
+ */
+function useLocalStorage<T>(key: string, initialValue: T, onWriteError?: () => void) {
   const [storedValue, setStoredValue] = useState<T>(() => {
     try {
       const item = window.localStorage.getItem(key);
@@ -17,6 +23,13 @@ function useLocalStorage<T>(key: string, initialValue: T) {
 
   const timeoutRef = useRef<number | undefined>(undefined);
   const pendingRef = useRef<{ key: string; value: T } | null>(null);
+  // Writes are debounced, so a document that no longer fits would otherwise
+  // report on every pause in typing. Report the transition, not each attempt.
+  const failingRef = useRef(false);
+  const onErrorRef = useRef(onWriteError);
+  useEffect(() => {
+    onErrorRef.current = onWriteError;
+  }, [onWriteError]);
 
   const flush = useCallback(() => {
     if (timeoutRef.current !== undefined) {
@@ -28,9 +41,14 @@ function useLocalStorage<T>(key: string, initialValue: T) {
     pendingRef.current = null;
     try {
       window.localStorage.setItem(pending.key, JSON.stringify(pending.value));
+      failingRef.current = false;
     } catch (error) {
       // Most often QuotaExceededError on a very large document.
       console.error(error);
+      if (!failingRef.current) {
+        failingRef.current = true;
+        onErrorRef.current?.();
+      }
     }
   }, []);
 
