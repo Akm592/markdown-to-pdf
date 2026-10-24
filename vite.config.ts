@@ -1,11 +1,22 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
+import seoPages from './seo/plugin.ts'
+
+// Canonical origin for every URL in the page tags, sitemap and robots.txt.
+// On Vercel this follows the project's production domain automatically, so
+// adding a custom domain later needs no code change. SITE_URL overrides it.
+const SITE_URL =
+  process.env.SITE_URL ??
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : 'https://markdown-to-pdf-pi.vercel.app')
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
     react(),
+    seoPages(SITE_URL),
     // Self-host Monaco. @monaco-editor/loader otherwise pulls it from jsDelivr
     // at runtime; Editor.tsx points it at /monaco/vs instead. These are plain
     // static assets -- they never enter the Rollup graph, so they cost nothing
